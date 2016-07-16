@@ -1,4 +1,4 @@
-# scrap-preprocessor
+# Superlist Bulk import Preprocessor
 
 Superlist, when used with CSV Import all has many underlying limitations for bulk import.
 
