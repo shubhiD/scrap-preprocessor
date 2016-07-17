@@ -16,17 +16,18 @@ class geocoderTest():
 
     def _readCSV(self):
         # append new columns
-        self.FIELDS.extend(["lat", "lng"])
+        self.FIELDS.extend(["lat", "lng", "fullAddress"])
 
         inputFile = open('sample.csv', 'r')
         sample_text = ''.join(inputFile.readline() for x in range(3))
         dialect = csv.Sniffer().sniff(sample_text);
         inputFile.seek(0);
-        reader = csv.DictReader(inputFile, dialect=dialect,  fieldnames=self.FIELDS)
+        reader = csv.DictReader(inputFile, dialect=dialect)
         # skip the head row
         next(reader)
-        self.rows.extend(reader)
-        inputFile.close()
+        reader.fieldnames.extend(["lat", "lng", "fullAddress"]);
+        self.rows.extend(reader);
+        inputFile.close();
 
     def _addGeocoding(self):
         for row in self.rows:
@@ -36,8 +37,7 @@ class geocoderTest():
                     place, (lat, lng) = self.g.geocode(address, False)[0]
                     row["lat"] = lat
                     row["lng"] = lng
-                    print
-                    "%s : completed" % address
+                    row["fullAddress"] = address
                 except Exception as err:
                     logging.exception("Something awful happened when processing '"+address+"'");
 
