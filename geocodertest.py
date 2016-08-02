@@ -1,5 +1,7 @@
 import csv
 import logging
+import glob
+import os
 from geopy import geocoders
 
 
@@ -10,15 +12,18 @@ class geocoderTest():
         self.FIELDS = ["Name","Phone1","Phone2","Phone3","Phone4","Phone5","Street Address","Locality","Pincode","City","Country","Mail","Website","Person to Contact","Working Hours","Services Offered","Details","Images URL","Keywords"]
 
     def process(self):
-        self._readCSV()
-        self._addGeocoding()
-        self._writeCSV()
+        fileNames = glob.glob('./*.csv');
+        for fileName in fileNames:
+            fileBaseName = os.path.basename(fileName);
+            self._readCSV(fileBaseName);
+            self._addGeocoding();
+            self._writeCSV("processed_"+fileBaseName);
 
-    def _readCSV(self):
+    def _readCSV(self, fileName):
         # append new columns
         self.FIELDS.extend(["lat", "lng", "fullAddress"])
 
-        inputFile = open('sample.csv', 'r')
+        inputFile = open(fileName, 'r')
         sample_text = ''.join(inputFile.readline() for x in range(3))
         dialect = csv.Sniffer().sniff(sample_text);
         inputFile.seek(0);
@@ -41,10 +46,10 @@ class geocoderTest():
                 except Exception as err:
                     logging.exception("Something awful happened when processing '"+address+"'");
 
-    def _writeCSV(self):
+    def _writeCSV(self, fileName):
         try:
             # DictWriter
-            csvFile = open('result.csv', 'w')
+            csvFile = open(fileName, 'w')
             writer = csv.DictWriter(csvFile, fieldnames=self.FIELDS)
             # write header
             writer.writerow(dict(zip(self.FIELDS, self.FIELDS)))
