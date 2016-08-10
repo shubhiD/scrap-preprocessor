@@ -2,7 +2,7 @@ import pandas as pd
 import glob
 
 
-files_li = glob.glob("*.csv")#update path here
+files_li = glob.glob("processed_*.csv")#update path here
 count = 1
 for x in files_li:
 
