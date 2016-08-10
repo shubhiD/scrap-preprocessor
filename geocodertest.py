@@ -9,7 +9,7 @@ class geocoderTest():
     def __init__(self, geo_type='google'):
         self.g = geocoders.get_geocoder_for_service(geo_type)()
         self.rows = []
-        self.FIELDS = ["Name","Phone1","Phone2","Phone3","Phone4","Phone5","Street Address","Locality","Pincode","City","Country","Mail","Website","Person to Contact","Working Hours","Services Offered","Details","Images URL","Keywords"]
+        self.FIELDS = ["Name","Phone1","Phone2","Phone3","Phone4","Phone5","Street Address","Locality","Pincode","City","Country","Mail","Website","listing_person","Working Hours","Services Offered","Details","Images URL","Keywords"]
 
     def process(self):
         fileNames = glob.glob('./*.csv');
