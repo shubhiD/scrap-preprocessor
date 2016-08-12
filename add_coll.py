@@ -15,7 +15,7 @@ for x in files_li:
 	csv_input['listing_banner_map_zoom'] = '16'
 	csv_input['listing_inside_view_location'] = ''
 	csv_input['listing_inside_view_location_latitude'] = csv_input['lat']
-	csv_input['listing_inside_view_location_longitude'] = csv_input['long']
+	csv_input['listing_inside_view_location_longitude'] = csv_input['lng']
 	csv_input['listing_inside_view_location_zoom'] = '16'
 	csv_input['listing_google_street_view_latitude'] = csv_input['lat']
 	csv_input['listing_google_street_view_longitude'] = csv_input['long']
