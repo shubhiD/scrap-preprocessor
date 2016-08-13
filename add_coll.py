@@ -70,4 +70,4 @@ for x in files_li:
 	print(count)
 	count+=1
 
-	csv_input.to_csv(x[:x.find('.csv')]+'.csv_updated', index=False)
+	csv_input.to_csv(x[:x.find('.csv')]+'_updated.csv', index=False)
