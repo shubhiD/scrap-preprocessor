@@ -7,7 +7,7 @@ import googlemaps
 
 class geocoderTest():
     def __init__(self, geo_type='google'):
-        self.gmaps = googlemaps.Client(key='AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM')
+        self.gmaps = googlemaps.Client(key='AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM');
         self.rows = []
         self.FIELDS = [];
 
@@ -44,7 +44,7 @@ class geocoderTest():
                 row["fullAddress"] = address;
                 row["Locality"] = row["Locality"].title()
                 row["City"] = row["City"].title()
-                row["listing_locations"] = row["Locality"].title() + ", " + row["City"].title();
+                row["listing_locations"] = row["Locality"] + ", " + row["City"];
                 try:
                     time.sleep(1); # To prevent error from Google API for concurrent calls
                     geocode_result = self.gmaps.geocode(address);
@@ -78,6 +78,10 @@ class geocoderTest():
             if row["lat"]==0:
                 row['location_image'] = '';
             else:
+                #myLocation = (row["lat"], row["lng"]);
+                #locationResult = self.gmaps.places_nearby(myLocation);
+                #photoReference = locationResult['results'][0]['photos'][0]['photo_reference'];
+                #placesPhoto = self.gmaps.places_photo(photoReference, max_width=100);
                 row['location_image'] = "mylocationImage.jpg";
 
     def _addFeaturedImage(self):

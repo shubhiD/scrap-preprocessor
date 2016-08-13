@@ -1,8 +1,9 @@
 import pandas as pd
 import glob
+import os
 
-
-files_li = glob.glob("*.csv_processed")#update path here
+os.chdir("./output")
+files_li = glob.glob("processed_*.csv")#update path here
 count = 1
 for x in files_li:
 
@@ -72,4 +73,4 @@ for x in files_li:
 	print(count)
 	count+=1
 
-	csv_input.to_csv(x[:x.find('.csv')]+'_updated.csv', index=False)
+	csv_input.to_csv('updated_'+x, index=False);

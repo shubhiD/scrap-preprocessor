@@ -1,6 +1,8 @@
 import pandas as pd
 import glob
+import os
 
+os.chdir("./output")
 '''
 define similarly
 '''
@@ -12,7 +14,7 @@ def listing_street_view_location(lat, lng):
 	return "a:5:{s:8:\"latitude\";s:9:\""+str(lat)+"\";s:9:\"longitude\";s:19:\""+str(lng)+"\";s:4:\"zoom\";s:1:\"1\";s:7:\"heading\";s:3:\"-18\";s:5:\"pitch\";s:2:\"25\";}"
 
 
-files_li = glob.glob("*_updated.csv")#update path here
+files_li = glob.glob("updated_*.csv")#update path here
 fields = ['lat', 'lng']
 
 for file in files_li:
@@ -55,7 +57,7 @@ for file in files_li:
 	
 	
 	
-	csv_input.to_csv(file[:file.find('_updated.csv')]+'_filled.csv', index=False)
+	csv_input.to_csv('filled_'+file, index=False)
 
 
 
