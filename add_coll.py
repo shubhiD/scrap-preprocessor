@@ -13,6 +13,7 @@ for x in files_li:
 	csv_input['listing_banner_map_marker'] = 'on'
 	csv_input['listing_banner_map_type'] = 'ROADMAP'
 	csv_input['listing_banner_map_zoom'] = '16'
+	csv_input['listing_banner'] = 'banner_map'
 	csv_input['listing_inside_view_location'] = ''
 	csv_input['listing_inside_view_location_latitude'] = csv_input['lat']
 	csv_input['listing_inside_view_location_longitude'] = csv_input['lng']
@@ -43,7 +44,8 @@ for x in files_li:
 	csv_input['listing_street_view_location_longitude'] = csv_input['lng']
 	csv_input['listing_street_view_location_zoom'] = '16'
  	csv_input['listing_type_metabox'] = csv_input['Services Offered']
- 	#csv_input['listing_google_address']
+ 	csv_input['locations'] = csv_input['listing_locations']
+  #csv_input['listing_google_address']
 	#csv_input['listing_google_map'] = csv_input['Address']
 	#csv_input['listing_phone'] 
 	#csv_input['listing_inside_view_location']
@@ -70,4 +72,4 @@ for x in files_li:
 	print(count)
 	count+=1
 
-	csv_input.to_csv(x[:x.find('.csv')]+'.csv_updated', index=False)
+	csv_input.to_csv(x[:x.find('.csv')]+'_updated.csv', index=False)

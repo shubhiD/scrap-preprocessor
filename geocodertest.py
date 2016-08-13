@@ -19,6 +19,7 @@ class geocoderTest():
         for fileName in fileNames:
             fileBaseName = os.path.basename(fileName);
             self._readCSV(fileBaseName);
+            self._addLocation();
             self._addGeocoding();
             self._addFeaturedImage();
             self._writeCSV(fileBaseName+"_processed");
@@ -32,10 +33,16 @@ class geocoderTest():
         # skip the head row
         # next(reader)
         # append new columns
-        reader.fieldnames.extend(["lat", "lng", "fullAddress", "featured_image"]);
+        reader.fieldnames.extend(["lat", "lng", "fullAddress", "featured_image", "listing_locations"]);
         self.FIELDS = reader.fieldnames;
         self.rows.extend(reader);
         inputFile.close();
+                
+    def _addLocation(self):
+        for row in self.rows:
+            row["City"] = row["City"].title()
+            row["Locality"] = row["Locality"].title()
+            row["listing_locations"] = row["Locality"] +", "+ row["City"]
 
     def _addGeocoding(self):
         geoLocationAdded = 0;
@@ -64,9 +71,10 @@ class geocoderTest():
                     else:
                         logging.exception("Something awful happened when processing '"+address+"'");
                 geoLocationAdded+=1
-                if (geoLocationAdded%10==0):
+                if (geoLocationAdded%20==0):
                      print "Records added: ",geoLocationAdded
         time.sleep(1) # To prevent error from Google API for concurrent calls
+
 
     def _addFeaturedImage(self):
         for row in self.rows:
@@ -74,7 +82,7 @@ class geocoderTest():
                 row['featured_image'] = '';
             else:
                 row['featured_image'] = row['Images URL'].split(",")[0].strip();
-                
+         
     def _writeCSV(self, fileName):
         try:
             # DictWriter
