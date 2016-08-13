@@ -14,12 +14,12 @@ class geocoderTest():
     def process(self):
         fileNames = glob.glob('./input/*.csv');
         for fileName in fileNames:
-            fileBaseName = os.path.basename(fileName);
+            fileBaseName = os.path.splitext(os.path.basename(fileName))[0];
             self._readCSV(fileName);
             self._addGeocoding();
             self._addLocationPhoto();
             self._addFeaturedImage();
-            self._writeCSV("./output/processed_"+fileBaseName);
+            self._writeCSV("./output/processed_"+fileBaseName+".csv");
 
     def _readCSV(self, fileName):
         inputFile = open(fileName, 'r')
@@ -78,10 +78,14 @@ class geocoderTest():
             if row["lat"]==0:
                 row['location_image'] = '';
             else:
-                #myLocation = (row["lat"], row["lng"]);
-                #locationResult = self.gmaps.places_nearby(myLocation);
-                #photoReference = locationResult['results'][0]['photos'][0]['photo_reference'];
-                #placesPhoto = self.gmaps.places_photo(photoReference, max_width=100);
+                myLocation = (row["lat"], row["lng"]);
+                locationResult = self.gmaps.places_nearby(myLocation);
+                photoReference = locationResult['results'][0]['photos'][0]['photo_reference'];
+                placesPhoto = self.gmaps.places_photo(photoReference, max_width=1000);
+                imageFile = open("./output/image_"+row["Name"]+".jpg", 'w');
+                for picString in placesPhoto:
+                    imageFile.write(picString);
+                imageFile.close();
                 row['location_image'] = "mylocationImage.jpg";
 
     def _addFeaturedImage(self):
