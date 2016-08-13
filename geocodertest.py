@@ -4,6 +4,7 @@ import glob
 import os
 import time
 import googlemaps
+from slugify import slugify
 
 class geocoderTest():
     def __init__(self, geo_type='google'):
@@ -79,14 +80,16 @@ class geocoderTest():
                 row['location_image'] = '';
             else:
                 myLocation = (row["lat"], row["lng"]);
-                locationResult = self.gmaps.places_nearby(myLocation);
-                photoReference = locationResult['results'][0]['photos'][0]['photo_reference'];
-                placesPhoto = self.gmaps.places_photo(photoReference, max_width=1000);
-                imageFile = open("./output/image_"+row["Name"]+".jpg", 'w');
-                for picString in placesPhoto:
-                    imageFile.write(picString);
-                imageFile.close();
-                row['location_image'] = "mylocationImage.jpg";
+                #locationResult = self.gmaps.places_nearby(myLocation);
+                #photoReference = locationResult['results'][0]['photos'][0]['photo_reference'];
+                #placesPhoto = self.gmaps.places_photo(photoReference, max_width=1000);
+                imageFileName = "./output/image_"+slugify(row["Name"])+".jpg"
+                #imageFile = open(imageFileName, 'w');
+                #for picString in placesPhoto:
+                #    imageFile.write(picString);
+                #imageFile.close();
+                #time.sleep(1);  # To prevent error from Google API for concurrent calls
+                row['location_image'] = imageFileName;
 
     def _addFeaturedImage(self):
         for row in self.rows:
