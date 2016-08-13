@@ -123,5 +123,5 @@ for file in files_li:
 		print '\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n'
 	'''
 
-csv_input.to_csv('updated_'+file[file.find('./output/processed_')+10:], index=False)
+csv_input.to_csv('./output/updated_'+file[file.find('processed_')+10:], index=False)
 
