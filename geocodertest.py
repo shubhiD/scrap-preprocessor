@@ -3,26 +3,23 @@ import logging
 import glob
 import os
 import time
-from geopy import geocoders
+import googlemaps
 
 class geocoderTest():
     def __init__(self, geo_type='google'):
-        if geo_type == 'googleV3':
-            self.geoCoder = geocoders.GoogleV3("AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM");
-        else:
-            self.geoCoder = geocoders.get_geocoder_for_service(geo_type)();
+        self.gmaps = googlemaps.Client(key='AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM')
         self.rows = []
-        self.FIELDS = ["Name","Phone1","Phone2","Phone3","Phone4","Phone5","Street Address","Locality","Pincode","City","Country","Mail","Website","listing_person","Working Hours","Services Offered","Details","Images URL","Keywords"]
+        self.FIELDS = [];
 
     def process(self):
-        fileNames = glob.glob('./*.csv');
+        fileNames = glob.glob('./input/*.csv');
         for fileName in fileNames:
             fileBaseName = os.path.basename(fileName);
-            self._readCSV(fileBaseName);
-            self._addLocation();
+            self._readCSV(fileName);
             self._addGeocoding();
+            self._addLocationPhoto();
             self._addFeaturedImage();
-            self._writeCSV(fileBaseName+"_processed");
+            self._writeCSV("./output/processed_"+fileBaseName);
 
     def _readCSV(self, fileName):
         inputFile = open(fileName, 'r')
@@ -33,48 +30,53 @@ class geocoderTest():
         # skip the head row
         # next(reader)
         # append new columns
-        reader.fieldnames.extend(["lat", "lng", "fullAddress", "featured_image", "listing_locations"]);
+        reader.fieldnames.extend(["listing_locations", "featured_image", "location_image", "fullAddress", "lat", "lng"]);
         self.FIELDS = reader.fieldnames;
         self.rows.extend(reader);
         inputFile.close();
-                
-    def _addLocation(self):
-        for row in self.rows:
-            row["City"] = row["City"].title()
-            row["Locality"] = row["Locality"].title()
-            row["listing_locations"] = row["Locality"] +", "+ row["City"]
 
     def _addGeocoding(self):
         geoLocationAdded = 0;
+        geoLocationFailed = 0;
         for row in self.rows:
             if (row["lat"] is None or row["lat"] == ""):
                 address = "%s %s, %s, %s, %s" % (row["Street Address"],row["Locality"],row["City"],row["Pincode"],row["Country"])
                 row["fullAddress"] = address;
+                row["listing_locations"] = row["Locality"].title() + ", " + row["City"].title();
                 try:
-                    time.sleep(1) # To prevent error from Google API for concurrent calls
-                    place, (lat, lng) = self.geoCoder.geocode(address, False)[0]
-                    row["lat"] = lat
-                    row["lng"] = lng
-                except Exception as err:
-                    noLocationFoundErrorMessage = "'NoneType' object has no attribute '__getitem__'";
-                    if err.message == noLocationFoundErrorMessage:
-                        #logging.warning("Geocode API was unable to find the lat and long for : '"+address+"' - Trying by adding name now");
-                        try:
-                            address = "%s %s %s %s %s" % (row["Street Address"],row["Locality"],row["Pincode"],row["City"],row["Country"])
-                            place, (lat, lng) = self.geoCoder.geocode(row["Name"]+", "+address, False)[0]
-                            row["lat"] = lat
-                            row["lng"] = lng
-                        except Exception as err:
-                            logging.warning("---- Trying by adding name is also failed");
+                    time.sleep(1); # To prevent error from Google API for concurrent calls
+                    geocode_result = self.gmaps.geocode(address);
+                    if(len(geocode_result)>0):
+                        row["lat"] = geocode_result[0]['geometry']['location']['lat'];
+                        row["lng"] = geocode_result[0]['geometry']['location']['lng'];
+                    else:
+                        logging.warning("Geocode API failure for : '" + address + "'");
+                        geocode_result = self.gmaps.geocode(row["Name"] + ", " + address);
+                        if (len(geocode_result) > 0):
+                            row["lat"] = geocode_result[0]['geometry']['location']['lat'];
+                            row["lng"] = geocode_result[0]['geometry']['location']['lng'];
+                        else:
+                            logging.warning("---- Trying by adding name also failed");
+                            geoLocationFailed+=1;
                             row["lat"] = 0;
                             row["lng"] = 0;
-                    else:
-                        logging.exception("Something awful happened when processing '"+address+"'");
-                geoLocationAdded+=1
-                if (geoLocationAdded%20==0):
-                     print "Records added: ",geoLocationAdded
-        time.sleep(1) # To prevent error from Google API for concurrent calls
+                except Exception as err:
+                    logging.exception("Something awful happened when processing '"+address+"'");
+                    geoLocationFailed+=1;
+                    row["lat"] = 0;
+                    row["lng"] = 0;
+                geoLocationAdded+=1;
+                if (geoLocationAdded%10==0):
+                    print("Processed "+str(geoLocationAdded)+" rows.");
+        time.sleep(3); # To prevent error from Google API for concurrent calls
+        print("Successfully completed processing of (" + str(geoLocationAdded-geoLocationFailed) + "/" + str(geoLocationAdded) + ") rows.");
 
+    def _addLocationPhoto(self):
+        for row in self.rows:
+            if row["lat"]==0:
+                row['location_image'] = '';
+            else:
+                row['location_image'] = "mylocationImage.jpg";
 
     def _addFeaturedImage(self):
         for row in self.rows:
@@ -82,7 +84,7 @@ class geocoderTest():
                 row['featured_image'] = '';
             else:
                 row['featured_image'] = row['Images URL'].split(",")[0].strip();
-         
+
     def _writeCSV(self, fileName):
         try:
             # DictWriter
@@ -90,14 +92,13 @@ class geocoderTest():
             writer = csv.DictWriter(csvFile, fieldnames=self.FIELDS);
             # write header
             writer.writerow(dict(zip(self.FIELDS, self.FIELDS)));
-
             for row in self.rows:
                 writer.writerow(row)
-
             csvFile.close()
         except Exception as err:
             logging.exception("Something awful happened when processing result.csv");
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
     f = geocoderTest()
     f.process()
