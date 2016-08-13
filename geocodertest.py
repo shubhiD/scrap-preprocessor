@@ -42,6 +42,8 @@ class geocoderTest():
             if (row["lat"] is None or row["lat"] == ""):
                 address = "%s %s, %s, %s, %s" % (row["Street Address"],row["Locality"],row["City"],row["Pincode"],row["Country"])
                 row["fullAddress"] = address;
+                row["Locality"] = row["Locality"].title()
+                row["City"] = row["City"].title()
                 row["listing_locations"] = row["Locality"].title() + ", " + row["City"].title();
                 try:
                     time.sleep(1); # To prevent error from Google API for concurrent calls
