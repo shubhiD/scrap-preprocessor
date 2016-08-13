@@ -2,12 +2,13 @@ import csv
 import logging
 import glob
 import os
+import time
 from geopy import geocoders
 
 class geocoderTest():
     def __init__(self, geo_type='google'):
         if geo_type == 'googleV3':
-            self.geoCoder = geocoders.GoogleV3("INSERT_SERVER_KEY_HERE");
+            self.geoCoder = geocoders.GoogleV3("AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM");
         else:
             self.geoCoder = geocoders.get_geocoder_for_service(geo_type)();
         self.rows = []
@@ -19,6 +20,7 @@ class geocoderTest():
             fileBaseName = os.path.basename(fileName);
             self._readCSV(fileBaseName);
             self._addGeocoding();
+            self._addFeaturedImage();
             self._writeCSV(fileBaseName+"_processed");
 
     def _readCSV(self, fileName):
@@ -30,36 +32,49 @@ class geocoderTest():
         # skip the head row
         # next(reader)
         # append new columns
-        reader.fieldnames.extend(["lat", "lng", "fullAddress"]);
+        reader.fieldnames.extend(["lat", "lng", "fullAddress", "featured_image"]);
         self.FIELDS = reader.fieldnames;
         self.rows.extend(reader);
         inputFile.close();
 
     def _addGeocoding(self):
+        geoLocationAdded = 0;
         for row in self.rows:
             if (row["lat"] is None or row["lat"] == ""):
-                address = "%s %s %s %s %s" % (row["Street Address"],row["Locality"],row["Pincode"],row["City"],row["Country"])
+                address = "%s %s, %s, %s, %s" % (row["Street Address"],row["Locality"],row["City"],row["Pincode"],row["Country"])
                 row["fullAddress"] = address;
                 try:
+                    time.sleep(1) # To prevent error from Google API for concurrent calls
                     place, (lat, lng) = self.geoCoder.geocode(address, False)[0]
                     row["lat"] = lat
                     row["lng"] = lng
                 except Exception as err:
                     noLocationFoundErrorMessage = "'NoneType' object has no attribute '__getitem__'";
                     if err.message == noLocationFoundErrorMessage:
-                        logging.warning("Geocode API was unable to find the lat and long for : '"+address+"'");
+                        #logging.warning("Geocode API was unable to find the lat and long for : '"+address+"' - Trying by adding name now");
                         try:
-                            place, (lat, lng) = self.geoCoder.geocode(row["Name"]+" "+address, False)[0]
+                            address = "%s %s %s %s %s" % (row["Street Address"],row["Locality"],row["Pincode"],row["City"],row["Country"])
+                            place, (lat, lng) = self.geoCoder.geocode(row["Name"]+", "+address, False)[0]
                             row["lat"] = lat
                             row["lng"] = lng
                         except Exception as err:
+                            logging.warning("---- Trying by adding name is also failed");
                             row["lat"] = 0;
                             row["lng"] = 0;
                     else:
                         logging.exception("Something awful happened when processing '"+address+"'");
-                    row["lat"] = 0;
-                    row["lng"] = 0;
+                geoLocationAdded+=1
+                if (geoLocationAdded%10==0):
+                     print "Records added: ",geoLocationAdded
+        time.sleep(1) # To prevent error from Google API for concurrent calls
 
+    def _addFeaturedImage(self):
+        for row in self.rows:
+            if not row["Images URL"]:
+                row['featured_image'] = '';
+            else:
+                row['featured_image'] = row['Images URL'].split(",")[0].strip();
+                
     def _writeCSV(self, fileName):
         try:
             # DictWriter
