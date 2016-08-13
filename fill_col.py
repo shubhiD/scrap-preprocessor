@@ -36,7 +36,7 @@ for file in files_li:
 		# call functions from here  #
 		#############################
 		li1.append(listing_banner_street_view(csv_input.lat[x], csv_input.lng[x]))
-		li2.append(listing_banner_street_view(csv_input.lat[x], csv_input.lng[x]))
+		li2.append(listing_street_view_location(csv_input.lat[x], csv_input.lng[x]))
 		#csv_input.loc[ x ,'listing_banner_street_view'] = listing_banner_street_view(csv_input.lat[x], csv_input.lng[x])
 	
 	#######################
