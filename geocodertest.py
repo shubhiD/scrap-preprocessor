@@ -18,7 +18,7 @@ class geocoderTest():
             fileBaseName = os.path.splitext(os.path.basename(fileName))[0];
             self._readCSV(fileName);
             self._addGeocoding();
-            self._addLocationPhoto();
+            #self._addLocationPhoto();
             self._addFeaturedImage();
             self._writeCSV("./output/processed_"+fileBaseName+".csv");
 
@@ -41,10 +41,10 @@ class geocoderTest():
         geoLocationFailed = 0;
         for row in self.rows:
             if (row["lat"] is None or row["lat"] == ""):
-                address = "%s %s, %s, %s, %s" % (row["Street Address"],row["Locality"],row["City"],row["Pincode"],row["Country"])
-                row["fullAddress"] = address;
                 row["Locality"] = row["Locality"].title()
                 row["City"] = row["City"].title()
+                address = "%s %s, %s, %s, %s" % (row["Street Address"],row["Locality"],row["City"],row["Pincode"],row["Country"])
+                row["fullAddress"] = address;
                 row["listing_locations"] = row["Locality"] + ", " + row["City"];
                 try:
                     time.sleep(1); # To prevent error from Google API for concurrent calls
@@ -53,13 +53,13 @@ class geocoderTest():
                         row["lat"] = geocode_result[0]['geometry']['location']['lat'];
                         row["lng"] = geocode_result[0]['geometry']['location']['lng'];
                     else:
-                        logging.warning("Geocode API failure for : '" + address + "'");
+                        #logging.warning("Geocode API failure for : '" + address + "'");
                         geocode_result = self.gmaps.geocode(row["Name"] + ", " + address);
                         if (len(geocode_result) > 0):
                             row["lat"] = geocode_result[0]['geometry']['location']['lat'];
                             row["lng"] = geocode_result[0]['geometry']['location']['lng'];
                         else:
-                            logging.warning("---- Trying by adding name also failed");
+                            logging.warning("---- Trying by adding name also failed for : '" + address + "'");
                             geoLocationFailed+=1;
                             row["lat"] = 0;
                             row["lng"] = 0;
@@ -69,9 +69,9 @@ class geocoderTest():
                     row["lat"] = 0;
                     row["lng"] = 0;
                 geoLocationAdded+=1;
-                if (geoLocationAdded%10==0):
+                if (geoLocationAdded%20==0):
                     print("Processed "+str(geoLocationAdded)+" rows.");
-        time.sleep(3); # To prevent error from Google API for concurrent calls
+        time.sleep(1); # To prevent error from Google API for concurrent calls
         print("Successfully completed processing of (" + str(geoLocationAdded-geoLocationFailed) + "/" + str(geoLocationAdded) + ") rows.");
 
     def _addLocationPhoto(self):
