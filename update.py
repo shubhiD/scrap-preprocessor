@@ -92,7 +92,7 @@ for file in files_li:
 	li1 = []; li2 = []
 
 	print file + ' -> ' + 'updated_'+file[file.find('processed_')+10:]
-	csv_input = pd.read_csv(file)
+
 	#print csv_input.keys()
 	for x in range(len(csv_input.lat)):
 
