@@ -6,11 +6,26 @@ import time
 import googlemaps
 from slugify import slugify
 
+KEYS = [ 
+        'AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM', #Ananth's
+        'AIzaSyCcijQW6eCvvt1ToSkjaGA4R22qBdZ0XsI' #Aakash's
+]
+key_index = 0
+
+
 class geocoderTest():
     def __init__(self, geo_type='google'):
-        self.gmaps = googlemaps.Client(key='AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM');
+
+        try:
+            global key_index
+            self.gmaps = googlemaps.Client(key=KEYS[key_index])
+        except:
+            #check for actual error if required set no. of calls = 2500 (or whatever)
+            key_index += 1
+            self.gmaps = googlemaps.Client(key=KEYS[key_index])
+
         self.rows = []
-        self.FIELDS = [];
+        self.FIELDS = []
 
     def process(self):
         fileNames = glob.glob('./input/*.csv');
