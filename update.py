@@ -2,7 +2,6 @@ import pandas as pd
 import glob
 
 
-
 # define similarly
 def listing_banner_street_view(lat, lng):
 	return "a:5:{s:8:\"latitude\";s:9:\""+str(lat)+"\";s:9:\"longitude\";s:19:\""+str(lng)+"\";s:4:\"zoom\";s:1:\"1\";s:7:\"heading\";s:3:\"-18\";s:5:\"pitch\";s:2:\"25\";}"
@@ -17,6 +16,7 @@ fields = ['lat', 'lng'] #for filling lat and lng
 count = 1
 for file in files_li:
 
+	csv_input = ''
 	csv_input = pd.read_csv(file)
 
 	###############
@@ -125,4 +125,3 @@ for file in files_li:
 	'''
 
 	csv_input.to_csv('./output/updated_'+file[file.find('processed_')+10:], index=False)
-
