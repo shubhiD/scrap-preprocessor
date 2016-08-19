@@ -30,6 +30,8 @@ class geocoderTest():
     def process(self):
         fileNames = glob.glob('./input/*.csv');
         for fileName in fileNames:
+            self.rows = []
+            self.FIELDS = []
             fileBaseName = os.path.splitext(os.path.basename(fileName))[0];
             self._readCSV(fileName);
             self._addGeocoding();
