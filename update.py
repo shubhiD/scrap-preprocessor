@@ -57,9 +57,7 @@ for file in files_li:
     # csv_input['listing_street_view_location_zoom'] = '16'
     csv_input['listing_type_metabox'] = csv_input['Services Offered']
     csv_input['locations'] = csv_input['listing_locations']
-    csv_input['listing_person'] = csv_input['claim_name']
-    csv_input['Website'] = csv_input['listing_website']
-    
+    csv_input['claim_name'] = csv_input['listing_person']    
 
     csv_input['post_category'] = csv_input['Services Offered']
     csv_input['post_tag'] = csv_input['Services Offered']
@@ -72,8 +70,8 @@ for file in files_li:
         'Name': 'post_title',
         'Details': 'post_content',
         'Mail': 'claim_email',
-        'listing_person': 'claim_name',
-        'Phone1': 'claim_phone'
+        'Phone1': 'claim_phone',
+        'Website': 'listing_website'
         ###phone
         ###listing_description
         # 'Address'
