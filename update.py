@@ -58,6 +58,7 @@ for file in files_li:
     csv_input['listing_type_metabox'] = csv_input['Services Offered']
     csv_input['locations'] = csv_input['listing_locations']
     csv_input['listing_person'] = csv_input['claim_name']
+    csv_input['Website'] = csv_input['listing_website']
     
 
     csv_input['post_category'] = csv_input['Services Offered']
