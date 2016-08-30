@@ -71,6 +71,7 @@ for file in files_li:
         'Details': 'post_content',
         'Mail': 'claim_email',
         'Phone1': 'claim_phone',
+        'Working Hours': 'listing_opening_hours',
         'Website': 'listing_website'
         ###phone
         ###listing_description
@@ -87,7 +88,7 @@ for file in files_li:
     li1 = [];
     li2 = []
 
-    print file + ' -> ' + 'updated_' + file[file.find('processed_') + 10:]
+    print(file + ' -> ' + 'updated_' + file[file.find('processed_') + 10:]);
 
     # print csv_input.keys()
     for x in range(len(csv_input.lat)):
