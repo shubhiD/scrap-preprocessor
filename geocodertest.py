@@ -4,6 +4,7 @@ import glob
 import os
 import time
 import googlemaps
+import parseWorkingHours
 from slugify import slugify
 
 KEYS = [ 
@@ -37,6 +38,7 @@ class geocoderTest():
             self._addGeocoding();
             #self._addLocationPhoto();
             self._addFeaturedImage();
+            self._formatWorkinghours();
             self._writeCSV("./output/processed_"+fileBaseName+".csv");
 
     def _readCSV(self, fileName):
@@ -114,6 +116,13 @@ class geocoderTest():
                 row['featured_image'] = '';
             else:
                 row['featured_image'] = row['Images URL'].split(",")[0].strip();
+
+    def _formatWorkinghours(self):
+        for row in self.rows:
+            if not row["Working Hours"]:
+                row['Working Hours'] = '';
+            else:
+                row['Working Hours'] = parseWorkingHours.parseWorkingHours(row['Working Hours']);
 
     def _writeCSV(self, fileName):
         try:
