@@ -88,6 +88,7 @@ class geocoderTest():
                         row["lng"] = geocode_result[0]['geometry']['location']['lng'];
                     else:
                         logging.warning("Geocode API failure for : '" + address + "'");
+                        time.sleep(1);
                         geocode_result = self.gmaps.geocode(row["Name"] + ", " + address);
                         if (len(geocode_result) > 0):
                             row["lat"] = geocode_result[0]['geometry']['location']['lat'];
@@ -137,12 +138,11 @@ class geocoderTest():
                     for i in range(len(details)):
                         url3='https://maps.googleapis.com/maps/api/place/photo?maxwidth=1600&photoreference='+details[i]['photo_reference']+'&key='+KEYS[key_index]
                         t=requests.get(url3)
-                        print t.url
                         list_pics.append(t.url) #resolving redirects it returns final url
 
                     str_place=",".join(list_pics)
                     row["Images URL"]=str_place+row["Images URL"]
-                    print "added",row['Name']
+                   
                 except Exception as err:
                     print err
                    
