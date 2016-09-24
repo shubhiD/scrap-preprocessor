@@ -14,7 +14,6 @@ import math
 from random import randint
 from imagesFetch import fetch
 
-
 KEYS = [
         'AIzaSyCgs8C71RqvWoeO69XBXVPQH006i7v4IkM', #Ananth's
         'AIzaSyCcijQW6eCvvt1ToSkjaGA4R22qBdZ0XsI', #Aakash's
@@ -38,7 +37,7 @@ class geocoderTest():
         self.FIELDS = []
 
     def process(self):
-        fileNames = glob.glob('./input/sample.csv');
+        fileNames = glob.glob('./input/*.csv');
         print fileNames
         fileCount = 0
         for fileName in fileNames:
@@ -159,11 +158,13 @@ class geocoderTest():
                     url2=url2+placeid+"&key="+KEYS[key_index]
                     #print 'Place id ',row['Name'], url2
                     row["Total Views"]=randint(200,500)
-                    detail_placeid = requests.get(url2).json().get('result')
-                    details = detail_placeid['photos']
-                    details_reviews = detail_placeid['reviews']
-                    #row['avg_rating'] = detail_placeid['rating']
-                    #print details_reviews
+                    detail_placeid=requests.get(url2).json().get('result')
+                    details=detail_placeid['photos']
+                    try:
+                        details_reviews=detail_placeid['reviews']
+                    except Exception:
+                        # FOR CASES WITH NO REVIEWS BUT THERE MAY BE PHOTOS
+                        pass
 
                     for i in range(len(details)):
                         url3='https://maps.googleapis.com/maps/api/place/photo?maxwidth=1600&photoreference='+details[i]['photo_reference']+'&key='+KEYS[key_index]
@@ -180,18 +181,19 @@ class geocoderTest():
                 except Exception:
                     print "Image not found for "+row['Name']
                     row["Total Views"]=randint(50,200)
-                    #row['avg_rating']=3.5
-                #if row["prec_loc"]=="true":
-                #    print "Adding rating and reviews"
-                f._addRatingsReviews(details_reviews,row)
-                
+                if row["prec_loc"]=="true":
+                    print "Adding rating and reviews"
+                    f._addRatingsReviews(details_reviews,row)
+                else:
+                    row['avg_rating']=3.5
+
     def _removeThumbs(self):
         for row in self.rows:
             row["Images URL"] = ",".join(filter(lambda url: not 'businessphoto-t' in url,row["Images URL"].split(",")))
 
     def _addFeaturedImage(self):
         for row in self.rows:
-            if not row["Images URL"] or row["Images URL"]=='' or row["Images URL"]==' ':
+            if not row["Images URL"]:
                 #image=imagesFetch(row["Name"])
                 row['featured_image'] = fetch(row['Name']); #creates png image
                 row['Images URL']=row['featured_image'];
@@ -201,25 +203,21 @@ class geocoderTest():
 
     def _addRatingsReviews(self,reviews,row):
         row["rating"],row['author'],row['reviews']="","",""
-        
-        if row["prec_loc"]=="true":
-            print "Adding rating and reviews"
-            for i in range(len(reviews)):
-                if i==(len(reviews)-1):
-                    row["rating"]+=str(reviews[i]['rating'])
-                    row['author']+=reviews[i]['author_name'].encode('utf-8')
-                    row['reviews']+=reviews[i]['text'].encode('utf-8')
-                else:
-                    row["rating"]+=str(reviews[i]['rating'])+","
-                    row['author']+=reviews[i]['author_name'].encode('utf-8')+","
-                    row['reviews']+=reviews[i]['text'].encode('utf-8')+","
-         #Adding/calculating avg rating
-        if not row['rating']:
-            row['avg_rating']='3.5'
+        total=0
+        for i in range(len(reviews)):
+            total += reviews[i]['rating']
+            if i==(len(reviews)-1):
+                row["rating"]+=str(reviews[i]['rating'])
+                row['author']+=reviews[i]['author_name'].encode('utf-8')
+                row['reviews']+=reviews[i]['text'].encode('utf-8')
+            else:
+                row["rating"]+=str(reviews[i]['rating'])+","
+                row['author']+=reviews[i]['author_name'].encode('utf-8')+","
+                row['reviews']+=reviews[i]['text'].encode('utf-8')+","
+        if total == 0:
+            row['avg_rating'] = 3.5
         else:
-            str_rat=row['rating']
-            lis_rat=list(str_rat.strip().split(","))
-            row['avg_rating']=round(sum(map(int,lis_rat))/float(len(lis_rat)),1) #avg_ratings correct to one decimal place
+            row['avg_rating'] = round((total*1.0)/len(reviews),1)
 
     def _formatWorkinghours(self):
         for row in self.rows:
